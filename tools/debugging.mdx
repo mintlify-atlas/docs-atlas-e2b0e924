@@ -1,5 +1,5 @@
 ---
-title: "Debugging Menu — ANSI Color Swatch Tester"
+title: "Debugging Menu: Test ANSI Terminal Color Support in LRhub"
 sidebarTitle: "Debugging"
 description: "LRhub's Debugging menu renders a 4×4 grid of ANSI terminal color swatches to verify your terminal emulator supports the full 16-color palette."
 ---
@@ -32,10 +32,7 @@ The grid is rendered using ANSI background escape codes. Each cell is two spaces
 The raw escape sequence rendered by LRhub is:
 
 ```lua
-"\27[41m  \27[42m  \27[43m  \27[44m  \n"
-"\27[45m  \27[46m  \27[47m  \27[100m  \n"
-"\27[101m  \27[102m  \27[103m  \27[104m  \n"
-"\27[105m  \27[106m  \27[107m  \27[40m  \27[0m"
+print("\27[41m  \27[42m  \27[43m  \27[44m  \n\27[45m  \27[46m  \27[47m  \27[100m  \n\27[101m  \27[102m  \27[103m  \27[104m  \n\27[105m  \27[106m  \27[107m  \27[40m  \27[0m")
 ```
 
 ## Navigation

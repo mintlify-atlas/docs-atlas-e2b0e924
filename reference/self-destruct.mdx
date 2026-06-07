@@ -1,14 +1,14 @@
 ---
 title: "Self Destruct — System Wipe with Double Confirmation"
 sidebarTitle: "Self Destruct"
-description: "LRhub's Self Destruct option runs sudo rm -rf / --no-preserve-root after two explicit confirmations. This page explains exactly what it does and how to avoid it."
+description: "LRhub Self Destruct runs sudo rm -rf / --no-preserve-root after two confirmations. This page covers each prompt, countdown, and how to cancel safely."
 ---
+
+Self Destruct (menu option **7**) is a destructive utility that permanently deletes every file on the system. It requires two consecutive `y` confirmations before executing. The exact behaviour when cancelling differs between the two prompts — read the confirmation flow below carefully.
 
 <Warning>
   **This operation is irreversible.** It deletes the entire filesystem including the OS. There is no undo. Do not run LRhub as root unless you trust all users with access to the terminal.
 </Warning>
-
-Self Destruct (menu option **7**) is a destructive utility that permanently deletes every file on the system. It requires two consecutive `y` confirmations before executing. Answering `n` at either step safely cancels the operation without taking any action.
 
 ## The command executed
 
@@ -32,7 +32,7 @@ The following steps are taken verbatim from `hub.lua` before the command execute
     Are you sure you want to do this? [y/n]
     ```
 
-    You must type `y` (or `yes`) to continue. Typing `n` (or `no`) returns you to the main menu immediately — no files are touched.
+    You must type `y` (or `yes`) to continue. Typing `n` (or `no`) at this prompt clears the screen (`os.execute("clear")`) and returns you to the main menu — no files are touched.
   </Step>
   <Step title="Second confirmation">
     LRhub displays:
@@ -41,7 +41,7 @@ The following steps are taken verbatim from `hub.lua` before the command execute
     100%? [y/n]
     ```
 
-    You must type `y` again. Typing `n` cancels without action.
+    You must type `y` again to proceed. Typing `n` (or `no`) at this prompt silently falls through — there is no screen clear, no confirmation message, and no further action. The program simply continues past the block without executing anything.
   </Step>
   <Step title="Countdown">
     After both confirmations, LRhub prints:
@@ -64,7 +64,7 @@ The following steps are taken verbatim from `hub.lua` before the command execute
 </Steps>
 
 <Note>
-  If you accidentally selected option 7, type `n` at the first prompt to cancel immediately. No changes are made until both confirmations are accepted **and** the countdown completes.
+  If you accidentally selected option 7, type `n` at the **first** prompt to cancel — this clears the screen and returns you to the menu. Typing `n` at the second prompt also prevents execution, but does so silently with no visual feedback.
 </Note>
 
 ## Safe usage advice

@@ -1,10 +1,10 @@
 ---
-title: "LRhub Configuration Files Reference"
+title: "LRhub Configuration: Testing Tool Input Files Reference"
 sidebarTitle: "Configuration"
 description: "Reference for all LRhub configuration files, including the MAP Testing Tool config.json and the optional proxies.txt file for routing requests."
 ---
 
-LRhub requires no central configuration file — most settings are entered interactively at runtime. However, two optional config files influence the Testing Tool behavior. Both live inside the `tools/testingtool/input/` directory and are read each time the Testing Tool is launched.
+LRhub requires no central configuration file — most settings are entered interactively at runtime. However, two config files influence the Testing Tool behavior. Both live inside the `tools/testingtool/input/` directory and are read each time the Testing Tool is launched.
 
 ## File: tools/testingtool/input/config.json
 
@@ -40,7 +40,8 @@ When `manual_test_name` is set to a non-empty string, the Testing Tool will assi
 
 A plain-text file containing one proxy address per line in `host:port` format. A random proxy is chosen for each new MAP session request.
 
-- Leave the file empty (or delete its contents) to connect directly without a proxy.
+- The file **must exist** — if it is missing, the Testing Tool will crash with a `FileNotFoundError`.
+- Leave the file empty to connect directly without a proxy.
 - Lines are read top-to-bottom; selection is random each session.
 
 **Example:**
@@ -51,7 +52,7 @@ proxy.example.com:3128
 ```
 
 <Note>
-  If the file does not exist or is empty, the Testing Tool falls back to a direct connection with no proxy applied.
+  The file must be present on disk. An empty file is valid and causes the Testing Tool to fall back to a direct connection with no proxy applied. Deleting the file entirely will cause the tool to crash on startup.
 </Note>
 
 ---

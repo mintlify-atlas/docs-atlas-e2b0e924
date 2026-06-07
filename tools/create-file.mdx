@@ -1,10 +1,10 @@
 ---
-title: "Create File — Large File Generator with Progress"
+title: "Create File: Generate Large Test Files with Progress Bar"
 sidebarTitle: "Create File"
-description: "LRhub's Create File tool generates arbitrary large zero-filled files at a specified path, with a live progress bar showing write speed and ETA."
+description: "LRhub's Create File tool generates large ASCII-zero-filled files at a chosen path in 64 MB chunks, showing a progress bar with write percentage and ETA."
 ---
 
-Create File is **menu option 4**, marked **[unstable]**. It writes a zero-filled binary file of a specified gigabyte size to a chosen destination directory. The file is written in 64 MB chunks with a live progress bar that updates in place, showing write percentage, estimated time remaining, and a visual fill indicator.
+Create File is **menu option 4**, marked **[unstable]**. It writes a large file filled with ASCII zero characters (`'0'`, byte value 48) of a specified gigabyte size to a chosen destination directory. The file is written in 64 MB chunks with a live progress bar that updates in place, showing write percentage, estimated time remaining, and a visual fill indicator.
 
 <Warning>
   This tool is marked [unstable]. Do not run it on a path you cannot afford to fill. Always verify available disk space before specifying a large size.
@@ -43,7 +43,7 @@ Create File is **menu option 4**, marked **[unstable]**. It writes a zero-filled
     Queries `df -B1 --output=avail <destination>` to get the exact number of free bytes. If the requested file size exceeds available space, the tool exits with an error showing both figures.
   </Step>
   <Step title="Write in 64 MB Chunks">
-    Opens the output file in binary write mode and writes zero-filled chunks of **64 MB** at a time until the total target size is reached.
+    Opens the output file and writes chunks of **64 MB** at a time, each chunk consisting of the ASCII character `'0'` repeated, until the total target size is reached.
   </Step>
   <Step title="Display Live Progress Bar">
     After each chunk write, the terminal line is updated in place with the current state:
