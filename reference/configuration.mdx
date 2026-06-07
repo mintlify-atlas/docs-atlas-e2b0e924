@@ -1,0 +1,101 @@
+---
+title: "LRhub Configuration Files Reference"
+sidebarTitle: "Configuration"
+description: "Reference for all LRhub configuration files, including the MAP Testing Tool config.json and the optional proxies.txt file for routing requests."
+---
+
+LRhub requires no central configuration file — most settings are entered interactively at runtime. However, two optional config files influence the Testing Tool behavior. Both live inside the `tools/testingtool/input/` directory and are read each time the Testing Tool is launched.
+
+## File: tools/testingtool/input/config.json
+
+**Absolute path after install:** `/usr/local/LRhub/tools/testingtool/input/config.json`
+
+This JSON file controls fallback behaviour when the MAP API returns incomplete student data. The schema contains a single field:
+
+```json
+{
+  "manual_test_name": ""
+}
+```
+
+<ParamField body="manual_test_name" type="string" required={false}>
+  Fallback test name used when a student's assigned test has a null `testName` in the MAP API response. Leave empty to skip students without an assigned test name.
+</ParamField>
+
+**Example with a value filled in:**
+
+```json
+{
+  "manual_test_name": "MAP Growth Reading 6+"
+}
+```
+
+When `manual_test_name` is set to a non-empty string, the Testing Tool will assign that test name to any student whose MAP record returns a null `testName`, allowing the scrape to continue rather than skipping those students.
+
+---
+
+## File: tools/testingtool/input/proxies.txt
+
+**Absolute path after install:** `/usr/local/LRhub/tools/testingtool/input/proxies.txt`
+
+A plain-text file containing one proxy address per line in `host:port` format. A random proxy is chosen for each new MAP session request.
+
+- Leave the file empty (or delete its contents) to connect directly without a proxy.
+- Lines are read top-to-bottom; selection is random each session.
+
+**Example:**
+
+```text
+192.168.1.100:8080
+proxy.example.com:3128
+```
+
+<Note>
+  If the file does not exist or is empty, the Testing Tool falls back to a direct connection with no proxy applied.
+</Note>
+
+---
+
+## Output: tools/testingtool/output/students.txt
+
+**Absolute path after install:** `/usr/local/LRhub/tools/testingtool/output/students.txt`
+
+This file is **appended** (never overwritten) each time the scrape option runs. Each line represents one student record in a colon-separated format.
+
+**Format per line:** `studentNumber:firstName:lastName`
+
+**Example:**
+
+```text
+12345:Jane:Doe
+67890:John:Smith
+```
+
+<Tip>
+  Because the file is always appended to, duplicate entries may accumulate across multiple scrape runs. Periodically review and clean the file to avoid duplicates.
+</Tip>
+
+---
+
+## Install paths
+
+The `install.sh` script places LRhub into the following locations on your system:
+
+| Path | Description |
+|------|-------------|
+| `/usr/local/LRhub/` | Root install directory |
+| `/usr/local/LRhub/hub.lua` | Main Lua entry point |
+| `/usr/local/LRhub/tools/` | All bundled tools |
+| `/usr/bin/lrhub` | Wrapper shell script (calls `lua hub.lua`) |
+
+The installer creates the `/usr/bin/lrhub` wrapper so you can invoke LRhub from any directory without specifying the full path. The wrapper script reads as follows:
+
+```bash
+#!/bin/bash
+cd "/usr/local/LRhub" || exit 1
+lua hub.lua "$@"
+```
+
+<Info>
+  The installer runs `sudo chmod +x /usr/bin/lrhub` automatically. As long as `/usr/bin` is in your `PATH`, the `lrhub` command will be available immediately after installation.
+</Info>

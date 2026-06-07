@@ -1,0 +1,127 @@
+---
+title: "Testing Tool — Automate MAP Test Sessions"
+sidebarTitle: "Testing Tool"
+description: "LRhub's Testing Tool connects to NWEA MAP proctoring sessions, scrapes student IDs, and can mass-confirm all students as ready to test."
+---
+
+Testing Tool is **menu option 2**. It automates interaction with NWEA MAP Growth test sessions via the MAP Proctor API at `test.mapnwea.org/proctor`. After joining a session with a name and password, it offers two sub-operations: scraping student data to a local file, or marking every enrolled student as ready to be confirmed by the proctor.
+
+<Warning>
+  This tool is provided for educational and administrative use only. Misuse against test sessions you do not own or administer may violate NWEA's terms of service.
+</Warning>
+
+## How It Works
+
+<Steps>
+  <Step title="Launch">
+    Select option **2** from the LRhub main menu. LRhub will change directory into `tools/testingtool/` and run `python3 -u main.py`.
+  </Step>
+  <Step title="Enter Session Credentials">
+    You will be prompted for the MAP session name and session password:
+
+    ```text
+    ! Session Name: MyTestSession
+    ! Session Pass: hunter2
+    ```
+
+    The tool calls `POST /joinTestSession` with these credentials. If the server returns `NOT_AUTHORIZED`, the tool prints an error and exits.
+  </Step>
+  <Step title="Choose a Sub-Operation">
+    On successful authentication, a sub-menu appears:
+
+    ```text
+    1 Scrape Student IDs & Student Names
+    2 Set All Students Ready
+    > 
+    ```
+  </Step>
+  <Step title="Run the Operation">
+    Select **1** to extract student records, or **2** to mark all students ready. See the sections below for details on each option.
+  </Step>
+</Steps>
+
+## Sub-Operations
+
+<CardGroup cols={2}>
+  <Card title="1 — Scrape Student IDs & Names" icon="users">
+    Re-joins the session and iterates through `studentSessionList` in the API response. For each student, it prints the extracted data to the terminal and appends a line to `tools/testingtool/output/students.txt`.
+
+    **Output format** (one student per line):
+    ```text
+    studentNumber:firstName:lastName
+    ```
+  </Card>
+  <Card title="2 — Set All Students Ready" icon="circle-check">
+    Continuously re-joins the session, reads the `Set-Auth-Token` response header, and calls `POST /setStudentReadyToBeConfirmed` for every student in the session list. Prints the API response text for each student.
+  </Card>
+</CardGroup>
+
+## API Endpoints
+
+Both operations communicate with the NWEA MAP Proctor API:
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `https://test.mapnwea.org/proctor/joinTestSession` | Join a session and retrieve the student list |
+| `POST` | `https://test.mapnwea.org/proctor/setStudentReadyToBeConfirmed` | Mark a student as ready to be confirmed |
+
+The `setStudentReadyToBeConfirmed` request requires an `Auth-Token` header whose value is taken from the `Set-Auth-Token` header of the `joinTestSession` response.
+
+## Configuration
+
+### `input/config.json`
+
+```json
+{
+  "manual_test_name": ""
+}
+```
+
+The `manual_test_name` field provides a fallback test name. When a student's `assignedTest.testName` field is `null` in the API response, this value is used instead. Set it to the expected test name if your session returns null test names.
+
+### `input/proxies.txt`
+
+List one HTTP proxy per line in `host:port` format:
+
+```text
+203.0.113.10:8080
+198.51.100.5:3128
+```
+
+Leave the file empty to connect directly without a proxy. When proxies are present, a random one is selected for the session.
+
+## Output File
+
+Student data scraped by option 1 is appended to:
+
+```text
+tools/testingtool/output/students.txt
+```
+
+Each line follows the `studentNumber:firstName:lastName` format:
+
+```text
+1042:Jane:Smith
+1099:John:Doe
+1201:Alex:Rivera
+```
+
+## Error Handling
+
+| Condition | Behavior |
+|---|---|
+| `errorMessage: NOT_AUTHORIZED` | Prints "Invalid Session Name Or Password" and exits |
+| JSON key missing for a student | Prints which key was not found and skips that student |
+| `Set-Auth-Token` header absent | Prints "Invalid Session" and exits the ready-loop |
+
+## Requirements
+
+The Testing Tool requires Python 3 and the following packages:
+
+```bash
+pip install requests colorama
+```
+
+<Note>
+  Python 3 must be installed and available as `python3` on your `PATH`. LRhub invokes the tool with `python3 -u main.py`.
+</Note>

@@ -1,0 +1,104 @@
+---
+title: "LRhub: Interactive Linux Terminal Hub"
+sidebarTitle: "Introduction"
+description: "LRhub is an open-source Lua CLI hub for Linux, offering system info, Kahoot botting, MAP testing tools, and more from a single interactive menu."
+---
+
+LRhub is an open-source, menu-driven command-line hub for Linux, written in Lua. It bundles a curated set of system utilities and specialty tools — from hardware inspection to Kahoot game automation — into a single interactive interface. Whether you're a student, tinkerer, or power user, LRhub gives you quick access to useful (and occasionally chaotic) terminal tools without needing to remember individual commands or paths.
+
+## How It Works
+
+Once launched, LRhub clears the terminal, renders its ASCII logo, and presents a numbered menu. You simply type a number between **1** and **8** and press **Enter** to run the corresponding tool. After most tools finish, you're prompted to return to the main menu or exit — no flags, no subcommands, no configuration files required.
+
+```text
+╭ 1 System Info - Returns system info
+├ 2 Testing Tool - A tool designed to mess with MAP testing
+├ 3 KBotter - A Kahoot game botter
+├ 4 Create File [unstable] - A true file size tester
+├ 5 About - Returns info about LRHub
+├ 6 Debugging - Opens a debugging menu
+├ 7 Self Destruct - Destroys your PC
+│ 
+├ 8 Exit - Exits the program
+│
+╰──> 
+```
+
+## Available Tools
+
+<CardGroup cols={2}>
+  <Card
+    title="System Info"
+    icon="microchip"
+    href="/tools/system-info"
+  >
+    Displays detailed hardware and OS information: chipset, CPU, GPU, instruction set, hostname, OS name, IP address, terminal size, RAM, storage, and uptime — all gathered at startup.
+  </Card>
+  <Card
+    title="Testing Tool"
+    icon="flask"
+    href="/tools/testing-tool"
+  >
+    A Python-based tool designed to interfere with MAP (Measures of Academic Progress) testing environments. Useful for research and controlled testing scenarios.
+  </Card>
+  <Card
+    title="KBotter"
+    icon="robot"
+    href="/tools/kbotter"
+  >
+    A Kahoot game botter that automates joining and answering questions in Kahoot sessions. Runs as a Python script from within the hub.
+  </Card>
+  <Card
+    title="Create File"
+    icon="file"
+    href="/tools/create-file"
+  >
+    A Lua-based file size tester marked **[unstable]**. Generates files of arbitrary sizes to test storage throughput and filesystem limits.
+  </Card>
+  <Card
+    title="About"
+    icon="circle-info"
+    href="/introduction"
+  >
+    Displays the current LRhub version and creation date directly in the terminal. Currently reports **v1.3.1**, created September 21st, 2025.
+  </Card>
+  <Card
+    title="Debugging"
+    icon="bug"
+    href="/tools/debugging"
+  >
+    Opens a debugging sub-menu that renders a full ANSI color palette grid in the terminal — useful for verifying that your terminal emulator supports color escape codes correctly.
+  </Card>
+  <Card
+    title="Self Destruct"
+    icon="skull"
+    href="/reference/self-destruct"
+  >
+    Runs `sudo rm -rf / --no-preserve-root` after a double confirmation prompt and a 5-second countdown. This permanently destroys all data on the system. Use with extreme caution.
+  </Card>
+  <Card
+    title="Exit"
+    icon="right-from-bracket"
+    href="/introduction"
+  >
+    Exits LRhub cleanly after a confirmation prompt. Also available at any point during a tool session when prompted with "Go back or exit? [y/n]".
+  </Card>
+</CardGroup>
+
+## Installation Paths
+
+After a successful install, LRhub occupies two locations on your system:
+
+| Path | Purpose |
+|---|---|
+| `/usr/bin/lrhub` | Shell wrapper script — makes `lrhub` available system-wide |
+| `/usr/local/LRhub/` | Main install directory containing `hub.lua` and the `tools/` subdirectory |
+| `/usr/local/LRhub/tools/` | Individual tool directories and Lua scripts (`KBotter/`, `testingtool/`, `createfile.lua`, etc.) |
+
+## License & Version
+
+<Note>
+  LRhub is licensed under the **GNU General Public License v3.0 (GPL-3.0)**. You are free to use, modify, and redistribute it under the same license. See the [LICENSE](https://github.com/kaladoodotlua/LRhub/blob/main/LICENSE) file in the repository for full terms.
+
+  **Current version:** v1.3.1 — created September 21, 2025.
+</Note>

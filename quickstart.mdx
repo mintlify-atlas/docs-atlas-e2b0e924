@@ -1,47 +1,153 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with LRhub"
+sidebarTitle: "Quickstart"
+description: "Launch LRhub, navigate the interactive menu, and use your first tool in under two minutes on any Linux system."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
+Once [LRhub is installed](/installation), you can launch it from any directory in your terminal. There's nothing to configure — just run the command and start picking tools.
 
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+<Note>
+  LRhub uses ANSI escape codes to render colors, bold text, and the ASCII logo. Your terminal emulator must support ANSI escape sequences for the interface to display correctly. Most modern Linux terminals (GNOME Terminal, Alacritty, Kitty, xterm, tmux) support this by default.
+</Note>
 
-## Prerequisites
-
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+## Launching LRhub
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
-
-    ```bash
-    npm install your-package
-    ```
+  <Step title="Open a terminal">
+    Open any terminal emulator on your Linux system. LRhub does not require a graphical environment — it works over SSH and TTY sessions as well.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+
+  <Step title="Run lrhub">
+    Type the following and press **Enter**:
 
     ```bash
-    your-cli init
+    lrhub
     ```
+
+    LRhub immediately clears the terminal and renders its ASCII art logo, followed by the version number and the interactive menu.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
 
-    ```bash
-    your-cli start
+  <Step title="Read the startup display">
+    After launching, you will see output similar to the following:
+
+    ```text
+
+            ,gggg,  ,ggggggggggg,
+           d8" "8I dP"""88""""""Y8,  ,dPYb,                 ,dPYb,
+           88  ,dP Yb,  88      `8b  IP'`Yb                 IP'`Yb
+        8888888P"   `"  88      ,8P  I8  8I                 I8  8I
+           88           88aaaad8P"   I8  8'                 I8  8'
+           88           88""""Yb,    I8 dPgg,   gg      gg  I8 dP
+      ,aa,_88           88     "8b   I8dP" "8I  I8      8I  I8dP   88gg
+     dP" "88P           88      `8i  I8P    I8  I8,    ,8I  I8P    8I
+     Yb,_,d88b,,_       88       Yb,,d8     I8,,d8b,  ,d8b,,d8b,  ,8I
+      "Y8P"  "Y88888    88        Y888P     `Y88P'"Y88P"`Y88P'"Y88P"'
+
+    LRhub
+    v1.3.1
+
+    Select an option
+    ───────────────────────────
+
+    ╭ 1 System Info - Returns system info
+    ├ 2 Testing Tool - A tool designed to mess with MAP testing
+    ├ 3 KBotter - A Kahoot game botter
+    ├ 4 Create File [unstable] - A true file size tester
+    ├ 5 About - Returns info about LRHub
+    ├ 6 Debugging - Opens a debugging menu
+    ├ 7 Self Destruct - Destroys your PC
+    │ 
+    ├ 8 Exit - Exits the program
+    │
+    ╰──> 
     ```
+
+    Numbers are highlighted in yellow and tool names in green in the actual terminal. The cursor waits at the `╰──>` prompt for your input.
+  </Step>
+
+  <Step title="Select a tool">
+    Type a number from **1** to **8** and press **Enter** to launch the corresponding tool. For example, typing `1` opens System Info:
+
+    ```text
+    ╰──> 1
+    ```
+
+    LRhub immediately clears the screen and runs the selected tool.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## Navigating the Menu
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+**Entering a choice:** Type a single digit (`1`–`8`) at the `╰──>` prompt and press **Enter**. Any input that is not a number between 1 and 8 is rejected with a brief error message and returns you to the menu.
+
+**Returning to the menu:** After most tools complete, LRhub shows a navigation prompt:
+
+```text
+───────────────────────────
+Go back or exit? [y/n]
+
+> 
+```
+
+- Type `y` (or `yes`) and press **Enter** to return to the main menu.
+- Type `n` (or `no`) and press **Enter** to exit LRhub.
+
+<Tip>
+  Tools 2 (Testing Tool), 3 (KBotter), and 4 (Create File) exit LRhub directly after running rather than returning to the menu, since they launch external Python or Lua processes. Simply run `lrhub` again to start a new session.
 </Tip>
+
+## Walkthrough: System Info (Option 1)
+
+Here's what a complete interaction with the **System Info** tool looks like from start to finish.
+
+**1. At the main menu, type `1` and press Enter:**
+
+```text
+╰──> 1
+```
+
+**2. LRhub clears the screen and prints your system details:**
+
+```text
+LRhub
+v1.3.1
+
+System Information
+───────────────────────────
+
+Chipset        - Intel Corporation 12th Gen Core Processor Host Bridge/DRAM Registers
+Instruction Set - x86_64
+CPU            - Intel(R) Core(TM) i5-1235U
+GPU            - Intel Corporation Alder Lake-UP3 GT2 [Iris Xe Graphics]
+Hostname       - myhost
+OS             - Ubuntu 24.04.1 LTS
+IP             - 192.168.1.42 - Type - Private
+Terminal Size  - 40 120
+RAM            - 15Gi
+Storage        - 468G
+Uptime         - 0d 3h 22m
+
+───────────────────────────
+Go back or exit? [y/n]
+
+> 
+```
+
+System data is collected at startup using standard Linux commands (`lscpu`, `lspci`, `hostname`, `free`, `df`, and `/proc/uptime`), so the values reflect your machine at the time you launched LRhub.
+
+**3. Type `y` to return to the main menu, or `n` to exit.**
+
+## Menu Reference
+
+| Option | Tool | Description |
+|---|---|---|
+| 1 | [System Info](/tools/system-info) | Hardware and OS details gathered at launch |
+| 2 | [Testing Tool](/tools/testing-tool) | MAP testing interference tool (Python) |
+| 3 | [KBotter](/tools/kbotter) | Kahoot game botter (Python) |
+| 4 | [Create File](/tools/create-file) | Arbitrary file size generator (Lua, unstable) |
+| 5 | [About](/introduction) | Displays version and creation date |
+| 6 | [Debugging](/tools/debugging) | ANSI color palette grid for terminal diagnostics |
+| 7 | [Self Destruct](/reference/self-destruct) | Runs `sudo rm -rf / --no-preserve-root` — destructive |
+| 8 | Exit | Exits LRhub after a confirmation prompt |
+
+Explore the individual tool pages linked above for full documentation on each feature.

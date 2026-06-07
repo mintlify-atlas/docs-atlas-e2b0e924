@@ -1,0 +1,80 @@
+---
+title: "Self Destruct — System Wipe with Double Confirmation"
+sidebarTitle: "Self Destruct"
+description: "LRhub's Self Destruct option runs sudo rm -rf / --no-preserve-root after two explicit confirmations. This page explains exactly what it does and how to avoid it."
+---
+
+<Warning>
+  **This operation is irreversible.** It deletes the entire filesystem including the OS. There is no undo. Do not run LRhub as root unless you trust all users with access to the terminal.
+</Warning>
+
+Self Destruct (menu option **7**) is a destructive utility that permanently deletes every file on the system. It requires two consecutive `y` confirmations before executing. Answering `n` at either step safely cancels the operation without taking any action.
+
+## The command executed
+
+When both confirmations are accepted, LRhub runs the following command:
+
+```bash
+sudo rm -rf / --no-preserve-root
+```
+
+This instructs the system to recursively and forcibly remove every file starting from the filesystem root (`/`). The `--no-preserve-root` flag explicitly bypasses the `rm` safeguard that normally prevents deletion of `/`. The `sudo` prefix elevates privileges to root, which is required to remove protected system files.
+
+## Confirmation flow
+
+The following steps are taken verbatim from `hub.lua` before the command executes:
+
+<Steps>
+  <Step title="First confirmation">
+    LRhub displays:
+
+    ```text
+    Are you sure you want to do this? [y/n]
+    ```
+
+    You must type `y` (or `yes`) to continue. Typing `n` (or `no`) returns you to the main menu immediately — no files are touched.
+  </Step>
+  <Step title="Second confirmation">
+    LRhub displays:
+
+    ```text
+    100%? [y/n]
+    ```
+
+    You must type `y` again. Typing `n` cancels without action.
+  </Step>
+  <Step title="Countdown">
+    After both confirmations, LRhub prints:
+
+    ```text
+    Here goes nothing...
+    5
+    4
+    3
+    2
+    1
+    goodbye world :(
+    ```
+
+    Each number is separated by a one-second pause. There is no way to interrupt the countdown once it begins short of killing the process (e.g. `Ctrl+C`).
+  </Step>
+  <Step title="Execution">
+    `sudo rm -rf / --no-preserve-root` runs. The system will begin losing files immediately, including eventually the running Lua process itself.
+  </Step>
+</Steps>
+
+<Note>
+  If you accidentally selected option 7, type `n` at the first prompt to cancel immediately. No changes are made until both confirmations are accepted **and** the countdown completes.
+</Note>
+
+## Safe usage advice
+
+Run `lrhub` as a **regular non-root user**. The Self Destruct command invokes `sudo`, which will prompt for your password before proceeding. This provides an additional layer of protection — a user who does not know the sudo password cannot execute the wipe even after passing both in-app confirmations.
+
+<Tip>
+  If you are sharing a terminal session or running LRhub in an educational environment, restrict sudo access for unprivileged users via `/etc/sudoers` to prevent accidental or intentional misuse of this feature.
+</Tip>
+
+## Why does this exist?
+
+Self Destruct is provided as an **educational demonstration** of destructive shell commands. It is intentionally gated behind two explicit confirmations and a countdown to require deliberate, informed intent to activate. The feature illustrates how a single shell command can irreversibly affect an entire system — and why privilege management and caution with unfamiliar software matter.

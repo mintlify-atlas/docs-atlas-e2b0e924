@@ -1,0 +1,154 @@
+---
+title: "KBotter — Kahoot Game Bot Flooder"
+sidebarTitle: "KBotter"
+description: "KBotter spawns multiple Kahoot bots into a live game using WebSocket connections, with optional Unicode name-bypass to evade Kahoot's name filter."
+---
+
+KBotter is **menu option 3**. It floods a Kahoot game lobby with bot players by establishing real WebSocket connections to Kahoot's CometD endpoint. Each bot goes through the full Kahoot join handshake — session token retrieval, challenge solving, WebSocket CometD negotiation, and player login — and then holds its connection open for as long as the program runs.
+
+<Warning>
+  Using KBotter against Kahoot games you do not own violates Kahoot's Terms of Service. Use responsibly.
+</Warning>
+
+## Input Prompts
+
+When KBotter launches you will be asked five things in sequence:
+
+<Steps>
+  <Step title="Game Pin">
+    The 6–7 digit Kahoot game PIN displayed on the host screen.
+
+    ```text
+    ! Enter Game Pin:
+    > 123456
+    ```
+  </Step>
+  <Step title="Player Name">
+    The base name for all bots. Each bot receives an incrementing numeric suffix — for example, a base name of `bot` produces `bot1`, `bot2`, `bot3`, and so on.
+
+    ```text
+    ! Enter Player Name (Note: will add number incrementally after the name):
+    > bot
+    ```
+  </Step>
+  <Step title="Player Amount">
+    How many bots to spawn into the game.
+
+    ```text
+    ! Enter Player Amount:
+    > 20
+    ```
+  </Step>
+  <Step title="Name Bypass">
+    Whether to convert each character of the base name into a Unicode lookalike before joining.
+
+    ```text
+    ! Use name bypass [y/n]:
+    > y
+    ```
+  </Step>
+  <Step title="Confirm Start">
+    Press **ENTER** to begin spawning bots.
+
+    ```text
+    ! Press ENTER to start bot:
+    > 
+    ```
+  </Step>
+</Steps>
+
+## Name Bypass
+
+<Note>
+  The name bypass substitutes each lowercase letter with a Unicode lookalike character to avoid Kahoot's name filter.
+</Note>
+
+When bypass is enabled, every character of the player name is replaced using the following map before bots join the game:
+
+```text
+a → ᗩ    b → ᗷ    c → ᑕ    d → ᗪ    e → E
+f → ᖴ    g → G    h → ᕼ    i → I    j → ᒍ
+k → K    l → ᒪ    m → ᗰ    n → ᑎ    o → O
+p → ᑭ    q → ᑫ    r → ᖇ    s → ᔕ    t → T
+u → ᑌ    v → ᐯ    w → ᗯ    x → ᙭    y → Y
+z → ᘔ
+```
+
+Characters not in the map (numbers, spaces, symbols) are passed through unchanged.
+
+## How It Works
+
+KBotter uses the following flow for every bot it spawns:
+
+<Steps>
+  <Step title="Fetch Session Token">
+    An HTTP GET is made to Kahoot's reservation endpoint to retrieve the session token and JavaScript challenge string:
+
+    ```text
+    GET https://kahoot.it/reserve/session/{gamePin}/?{timestamp}
+    ```
+
+    The session token is returned in the `X-Kahoot-Session-Token` response header, and the challenge is in the JSON body.
+  </Step>
+  <Step title="Solve the Challenge">
+    `solve_challange.solveChallenge()` evaluates the obfuscated JavaScript challenge string using `py_mini_racer`, then XOR-decodes the base64 session token with the resulting solution string to produce the WebSocket connection path segment (`wssConnection`).
+  </Step>
+  <Step title="Open WebSocket">
+    A WebSocket connection is established to Kahoot's CometD server:
+
+    ```text
+    wss://kahoot.it/cometd/{gamePin}/{wssConnection}
+    ```
+  </Step>
+  <Step title="CometD Handshake">
+    The bot sends a CometD handshake message on the `/meta/handshake` channel and reads back the assigned `clientId`.
+  </Step>
+  <Step title="Connect and Login">
+    After two `/meta/connect` frames to establish the CometD subscription, the bot sends a login message on `/service/controller` with the player name and a spoofed Chrome browser device string. A successful login is confirmed when `loginResponse` appears in the server's reply.
+  </Step>
+  <Step title="Hold Connection">
+    The bot enters a keep-alive loop, continuously sending `/meta/connect` frames to prevent the WebSocket from timing out. Bots remain in the lobby until the program is closed.
+  </Step>
+</Steps>
+
+## Threading Model
+
+Each bot runs in its own `Thread`. Bots are spawned with a **0.1-second sleep** between each thread start to avoid hammering the Kahoot API simultaneously:
+
+```python
+for i in range(int(playerAmount)):
+    currentPlayerCount += 1
+    Thread(target=join_game, args=[gamePin, f"{playerName}{currentPlayerCount}"]).start()
+    sleep(0.1)
+```
+
+## Result Messages
+
+After all threads have reported back:
+
+```text
+# Success
+! Successfully added 20 of 20 bots.
+! By closing this program the bots will leave the game.
+
+# Failure
+! Failed to add bots.
+```
+
+<Info>
+  Bots hold their WebSocket connections open for the lifetime of the process. Once you close or interrupt KBotter, all bots disconnect and leave the Kahoot lobby automatically.
+</Info>
+
+## Requirements
+
+KBotter requires Python 3 and the following packages:
+
+```bash
+pip install websocket-client requests py_mini_racer
+```
+
+| Package | Purpose |
+|---|---|
+| `websocket-client` | Opens and maintains the CometD WebSocket connections |
+| `requests` | Fetches the session token from Kahoot's reservation API |
+| `py_mini_racer` | Evaluates the Kahoot JavaScript challenge to decode the session token |

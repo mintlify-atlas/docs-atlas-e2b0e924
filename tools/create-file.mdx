@@ -1,0 +1,96 @@
+---
+title: "Create File — Large File Generator with Progress"
+sidebarTitle: "Create File"
+description: "LRhub's Create File tool generates arbitrary large zero-filled files at a specified path, with a live progress bar showing write speed and ETA."
+---
+
+Create File is **menu option 4**, marked **[unstable]**. It writes a zero-filled binary file of a specified gigabyte size to a chosen destination directory. The file is written in 64 MB chunks with a live progress bar that updates in place, showing write percentage, estimated time remaining, and a visual fill indicator.
+
+<Warning>
+  This tool is marked [unstable]. Do not run it on a path you cannot afford to fill. Always verify available disk space before specifying a large size.
+</Warning>
+
+## Input Prompts
+
+<Steps>
+  <Step title="Destination Path">
+    Enter the full absolute path of the directory where the file should be written. The directory will be created automatically if it does not exist.
+
+    ```text
+    ! Destination: /home/user/testfiles
+    ```
+
+    <Note>
+      Use full absolute paths like `/home/username/dir`. The shorthand `~/dir` is not supported and will not expand correctly.
+    </Note>
+  </Step>
+  <Step title="Size in GB">
+    Enter the desired file size as a whole number of gigabytes. The minimum accepted value is **1**.
+
+    ```text
+    ! Size (in GB): 5
+    ```
+  </Step>
+</Steps>
+
+## What the Tool Does
+
+<Steps>
+  <Step title="Create Destination Directory">
+    Runs `mkdir -p <destination>` to ensure the target directory exists before attempting to write.
+  </Step>
+  <Step title="Check Available Disk Space">
+    Queries `df -B1 --output=avail <destination>` to get the exact number of free bytes. If the requested file size exceeds available space, the tool exits with an error showing both figures.
+  </Step>
+  <Step title="Write in 64 MB Chunks">
+    Opens the output file in binary write mode and writes zero-filled chunks of **64 MB** at a time until the total target size is reached.
+  </Step>
+  <Step title="Display Live Progress Bar">
+    After each chunk write, the terminal line is updated in place with the current state:
+
+    ```text
+    ! Written: 42.50% | ETA: 0m 32s | [████████        ]
+    ```
+
+    The bar fills left to right across 20 block positions as writing progresses.
+  </Step>
+</Steps>
+
+## Example Interaction
+
+```text
+! Note: Using '~/Directory' won't work please use '/home/user/Directory'
+
+! Destination: /home/user/testfiles
+! Size (in GB): 5
+! Written: 42.50% | ETA: 0m 32s | [████████        ]
+! Written: 100.00% | ETA: 0m 0s  | [████████████████████]
+! File created at /home/user/testfiles/5_gb
+```
+
+## Output File Naming
+
+The output file is placed directly inside the destination directory. Its name is the size in GB followed by `_gb`, with no file extension:
+
+| Requested Size | Output File Name |
+|---|---|
+| 1 GB | `1_gb` |
+| 5 GB | `5_gb` |
+| 20 GB | `20_gb` |
+
+For example, a 5 GB file written to `/home/user/testfiles` is saved as:
+
+```text
+/home/user/testfiles/5_gb
+```
+
+## Error Cases
+
+| Condition | Message |
+|---|---|
+| Size is less than 1 GB | `! Size cannot be smaller than 1 GB` |
+| Not enough free disk space | `! Not enough free space! Input: X.XX GB, Available: X.XX GB` |
+| Free space cannot be determined | `! Could not determine free space on target drive` |
+| File open/write failure | `! File operation failed: <error message>` |
+
+In all error cases the tool exits immediately without writing any data.

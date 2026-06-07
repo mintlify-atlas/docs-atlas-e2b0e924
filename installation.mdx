@@ -1,0 +1,142 @@
+---
+title: "Install LRhub on Linux"
+sidebarTitle: "Installation"
+description: "Install LRhub on any Linux system with a single curl command. Requires Git and Lua to be installed as prerequisites."
+---
+
+LRhub ships with a self-contained Bash installer (`install.sh`) that handles everything: cloning the repository, placing files in the correct system directories, creating the `lrhub` shell wrapper, and cleaning up temporary files. The entire process takes under a minute on most systems.
+
+<Warning>
+  The Self Destruct option (7) runs `sudo rm -rf / --no-preserve-root`. This will **permanently erase all data** on your system with no recovery path. Understand this before running LRhub as root or on any machine you care about.
+</Warning>
+
+## Prerequisites
+
+The installer checks for two dependencies before proceeding. Both must be present on your system.
+
+| Dependency | Purpose |
+|---|---|
+| `git` | Used by the installer to clone the LRhub repository |
+| `lua` | Runtime for `hub.lua` and the `createfile.lua` tool |
+
+You can verify whether they are already installed with:
+
+```bash
+command -v git
+command -v lua
+```
+
+If either command returns no output, install the missing package using your distribution's package manager:
+
+```bash
+# Debian / Ubuntu / Mint
+sudo apt install git lua5.4
+
+# Arch / Manjaro
+sudo pacman -S git lua
+
+# Fedora / RHEL / CentOS
+sudo dnf install git lua
+```
+
+<Note>
+  The exact Lua package name may vary by distro (e.g., `lua5.4`, `lua5.3`, `lua`). LRhub is compatible with Lua 5.x. Run `lua -v` after installation to confirm.
+</Note>
+
+## Installation Steps
+
+<Steps>
+  <Step title="Verify prerequisites">
+    Confirm that both `git` and `lua` are available before running the installer. The script will exit with an error if either is missing.
+
+    ```bash
+    command -v git && echo "Git OK" || echo "Git missing"
+    command -v lua && echo "Lua OK" || echo "Lua missing"
+    ```
+  </Step>
+
+  <Step title="Run the one-line installer">
+    Paste and run the following command in your terminal. `sudo` is required because the installer writes to `/usr/local/` and `/usr/bin/`.
+
+    ```bash
+    sudo bash -c "$(curl -sS https://raw.githubusercontent.com/kaladoodotlua/LRhub/refs/heads/main/install.sh)"
+    ```
+
+    The installer will print progress as it runs:
+
+    ```text
+    Checking for required commands...
+
+    Git installed!
+    Lua installed!
+
+    Cloning LRhub into /usr/local/LRhub...
+
+    Creating run script...
+
+    LRhub installed successfully!
+    Cleaning up...
+
+    Run with:
+    lrhub
+    ```
+
+    The green **"LRhub installed successfully!"** message confirms that all files are in place.
+  </Step>
+
+  <Step title="Confirm the install succeeded">
+    After the installer exits, verify the wrapper script exists and is executable:
+
+    ```bash
+    which lrhub
+    # Expected output: /usr/bin/lrhub
+
+    ls /usr/local/LRhub/
+    # Expected output: hub.lua  tools/
+    ```
+  </Step>
+
+  <Step title="Launch LRhub">
+    Run LRhub from any directory to confirm everything is working:
+
+    ```bash
+    lrhub
+    ```
+
+    You should see the ASCII logo, the version (`v1.3.1`), and the interactive menu. See the [Quickstart](/quickstart) guide for a walkthrough of the menu.
+  </Step>
+</Steps>
+
+## What the Installer Does
+
+Understanding the install process helps if you ever need to troubleshoot or manually update LRhub.
+
+1. **Checks for `git` and `lua`** — exits immediately if either is missing.
+2. **Removes any existing install** — if `/usr/local/LRhub` already exists, it is deleted before cloning to ensure a clean install.
+3. **Clones the repository** to `/usr/local/LRhub` via `git clone`.
+4. **Creates the wrapper script** at `/usr/bin/lrhub`:
+   ```bash
+   #!/bin/bash
+   cd "/usr/local/LRhub" || exit 1
+   lua hub.lua "$@"
+   ```
+   This script changes into the install directory before invoking Lua, so that relative tool paths inside `hub.lua` resolve correctly.
+5. **Moves `hub.lua` and `tools/`** from the versioned subdirectory (`LRhub-v1.3.1/`) up to `/usr/local/LRhub/`.
+6. **Cleans up** — removes the `LRhub-v1.3.1/` subdirectory, the `prev/` directory, `.git/`, `README.md`, and `install.sh` itself, leaving only what's needed to run.
+
+The installed version is **v1.3.1**.
+
+## Uninstallation
+
+LRhub does not include an uninstall script. To remove it completely, delete the install directory and the wrapper script manually:
+
+```bash
+sudo rm -rf /usr/local/LRhub
+sudo rm /usr/bin/lrhub
+```
+
+After running these commands, the `lrhub` command will no longer be available on your system.
+
+<Tip>
+  If you want to upgrade to a newer version in the future, simply re-run the one-line installer. It will automatically remove the existing installation before cloning the latest version.
+</Tip>

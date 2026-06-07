@@ -1,0 +1,197 @@
+---
+title: "LRhub Troubleshooting and Common Issues"
+sidebarTitle: "Troubleshooting"
+description: "Fix common LRhub installation and runtime errors including missing dependencies, blank system info fields, Python tool failures, and terminal color issues."
+---
+
+This page covers the most common issues encountered when installing or running LRhub and how to resolve them. Issues are grouped into installation problems and runtime problems.
+
+## Installation issues
+
+<Accordion title="Git is not installed">
+  **Error message:**
+
+  ```text
+  Git is not installed. Please install it.
+  ```
+
+  The `install.sh` script checks for `git` before cloning the repository. If Git is missing, the installer exits immediately.
+
+  **Fix:** Install Git for your distribution:
+
+  ```bash
+  # Debian / Ubuntu
+  sudo apt install git
+
+  # Arch Linux
+  sudo pacman -S git
+
+  # Fedora / RHEL
+  sudo dnf install git
+  ```
+
+  Re-run the installer after Git is available.
+</Accordion>
+
+<Accordion title="Lua is not installed">
+  **Error message:**
+
+  ```text
+  Lua is not installed. Please install it.
+  ```
+
+  The `install.sh` script checks for the `lua` binary before continuing. If Lua is absent, the installer exits.
+
+  **Fix:** Install Lua for your distribution:
+
+  ```bash
+  # Debian / Ubuntu
+  sudo apt install lua5.4
+
+  # Arch Linux
+  sudo pacman -S lua
+
+  # Fedora / RHEL
+  sudo dnf install lua
+  ```
+
+  <Note>
+    LRhub requires **Lua 5.x**. Verify your installed version with `lua -v` before running the installer.
+  </Note>
+</Accordion>
+
+<Accordion title="Installer fails with permission error">
+  The installer uses `sudo` in two places: cloning into `/usr/local/LRhub/` and creating the wrapper script at `/usr/bin/lrhub`. If your user account does not have `sudo` privileges, both steps will fail.
+
+  **Fix:** Ensure your user is in the `sudo` group (Debian/Ubuntu) or the `wheel` group (Arch/Fedora):
+
+  ```bash
+  # Debian / Ubuntu
+  sudo usermod -aG sudo $USER
+
+  # Arch / Fedora
+  sudo usermod -aG wheel $USER
+  ```
+
+  Log out and back in for the group change to take effect, then re-run the installer.
+</Accordion>
+
+---
+
+## Runtime issues
+
+<Accordion title="System Info shows empty fields">
+  The **System Info** screen (option 1) may display blank values for one or more fields depending on what utilities are installed.
+
+  | Empty field | Required utility | Fix |
+  |-------------|-----------------|-----|
+  | Chipset | `lspci` | `sudo apt install pciutils` |
+  | GPU | `lspci` | `sudo apt install pciutils` |
+  | OS | `lsb_release` | `sudo apt install lsb-release` |
+
+  After installing the missing utilities, restart LRhub — system info is collected once at startup.
+</Accordion>
+
+<Accordion title="Colors don't display in the terminal">
+  LRhub uses **ANSI escape codes** throughout its interface (bold, italic, and foreground/background colours). If your terminal emulator does not support ANSI/VT100 sequences, you will see raw escape characters (e.g. `\e[32m`) instead of colours, or no colour at all.
+
+  **Fix:** Switch to a terminal emulator that supports ANSI colour — most modern emulators (GNOME Terminal, Konsole, Alacritty, kitty, xterm) do so by default.
+
+  **Workaround:** Use the **Debugging** menu (option 6) to render a colour swatch. If colour blocks appear correctly there, the issue is isolated to a specific tool rather than the terminal itself.
+</Accordion>
+
+<Accordion title="KBotter: Failed to add bots">
+  KBotter (option 3) launches `tools/KBotter/main.py` via Python 3. Common causes of bot-add failures:
+
+  - The Kahoot game PIN is incorrect or the game has already started (bots can only join while the lobby is open).
+  - Python 3 dependencies are missing.
+
+  **Fix:** Verify the game is in the waiting lobby, then install the required Python packages:
+
+  ```bash
+  pip3 install websocket-client requests py_mini_racer
+  ```
+
+  Confirm Python 3 is installed:
+
+  ```bash
+  python3 --version
+  ```
+</Accordion>
+
+<Accordion title="Testing Tool: Invalid Session Name Or Password">
+  **Error:** The MAP API returned `NOT_AUTHORIZED`.
+
+  This means the session credentials were rejected. Double-check the **session name** and **password** exactly as they appear in the MAP proctor console — both fields are case-sensitive. Ensure the testing session is currently active and has not expired.
+</Accordion>
+
+<Accordion title="Testing Tool: python3 not found">
+  The Testing Tool is launched internally with:
+
+  ```bash
+  python3 -u main.py
+  ```
+
+  If `python3` is not on your `PATH`, the tool will fail immediately after selection.
+
+  **Fix:** Install Python 3:
+
+  ```bash
+  sudo apt install python3
+  ```
+
+  Also install the Testing Tool's Python dependencies:
+
+  ```bash
+  pip3 install colorama requests
+  ```
+</Accordion>
+
+<Accordion title="Create File: tilde (~) path not working">
+  The **Create File** tool (option 4) does not perform shell tilde expansion. Entering `~/files` will be treated as a literal path beginning with `~`, which does not exist as a real directory.
+
+  **Fix:** Use a full absolute path instead:
+
+  ```bash
+  # Instead of this:
+  ~/files
+
+  # Use this:
+  /home/yourusername/files
+  ```
+
+  You can find your home directory path by running `echo $HOME` in a separate terminal.
+</Accordion>
+
+<Accordion title="lrhub command not found after install">
+  The installer places the `lrhub` wrapper script at `/usr/bin/lrhub`. If the command is not found, `/usr/bin` may be missing from your shell's `PATH`.
+
+  **Check your current PATH:**
+
+  ```bash
+  echo $PATH
+  ```
+
+  **Fix:** If `/usr/bin` is absent, add it temporarily:
+
+  ```bash
+  export PATH=$PATH:/usr/bin
+  ```
+
+  For a permanent fix, add that line to your shell profile:
+
+  ```bash
+  echo 'export PATH=$PATH:/usr/bin' >> ~/.bashrc
+  source ~/.bashrc
+  ```
+</Accordion>
+
+---
+
+## Getting more help
+
+If your issue is not covered here, visit the LRhub GitHub repository to browse existing issues or file a new one:
+
+**https://github.com/kaladoodotlua/LRhub**
+
+When filing an issue, include your Linux distribution, Lua version (`lua -v`), Python version (`python3 --version`), and the exact error output you received.

@@ -1,0 +1,71 @@
+---
+title: "System Info — Hardware and OS Overview"
+sidebarTitle: "System Info"
+description: "LRhub's System Info tool displays chipset, CPU, GPU, hostname, OS, local IP, terminal size, RAM, storage, and uptime pulled live from the Linux system."
+---
+
+System Info is **menu option 1**. When selected, it collects hardware and operating system details by running a set of shell commands at startup, then prints them in a formatted table directly in the terminal. All values are gathered the moment LRhub launches, so the display is instant with no extra loading delay.
+
+## Fields Displayed
+
+The following fields are shown, each sourced from a specific Linux command:
+
+| Field | Source Command |
+|---|---|
+| **Chipset** | `lspci \| grep -i 'host bridge'` |
+| **Instruction Set** | `uname -m` |
+| **CPU** | `lscpu \| grep 'Model name'` |
+| **GPU** | `lspci \| grep -i 'vga'` |
+| **Hostname** | `hostname` |
+| **OS** | `lsb_release -ds` |
+| **IP + Type** | `hostname -I` (first interface only) |
+| **Terminal Size** | `stty size` |
+| **RAM** | `free -h` (total memory) |
+| **Storage** | `df -h --output=size /` (root partition size) |
+| **Uptime** | `/proc/uptime` (formatted as `Xd Xh Xm`) |
+
+## Sample Output
+
+```text
+LRhub
+v1.3.1
+
+System Information
+───────────────────────────
+
+Chipset         - Intel Corporation 8th Gen Core Processor Host Bridge/DRAM
+Instruction Set - x86_64
+CPU             - Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz
+GPU             - NVIDIA Corporation GP107M [GeForce GTX 1050 Ti Mobile]
+Hostname        - myhost
+OS              - Ubuntu 22.04.3 LTS
+IP              - 192.168.1.42 - Type - Private
+Terminal Size   - 40 220
+RAM             - 15Gi
+Storage         - 234G
+Uptime          - 3d 7h 22m
+
+───────────────────────────
+Go back or exit? [y/n]
+
+>
+```
+
+## IP Address Note
+
+The IP address is always labeled **Type — Private** because LRhub reads only the first address returned by `hostname -I`, which is always a local network interface address. Public IP detection is not performed.
+
+## Navigation
+
+After reviewing the system information, the tool prompts:
+
+```text
+Go back or exit? [y/n]
+```
+
+- Enter `y` to return to the main menu.
+- Enter `n` to exit LRhub entirely.
+
+<Note>
+  `lspci` must be installed on your system for the **Chipset** and **GPU** fields to populate. On minimal or containerized Linux installs where `lspci` is absent, those fields will appear empty. Install it with `sudo apt install pciutils` (Debian/Ubuntu) or the equivalent for your distribution.
+</Note>

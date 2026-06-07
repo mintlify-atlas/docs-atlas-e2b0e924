@@ -1,0 +1,70 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "LRhub",
+  "projectDescription": "A Lua-based interactive CLI hub for Linux that bundles utilities including a system info viewer, MAP testing tool, Kahoot game botter (KBotter), a large-file creator, and a self-destruct mode.",
+  "theme": "aspen",
+  "primaryColor": "#22c55e",
+  "lightColor": "#bbf7d0",
+  "darkColor": "#15803d",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Tools",
+            "pages": [
+              "tools/system-info",
+              "tools/testing-tool",
+              "tools/kbotter",
+              "tools/create-file",
+              "tools/debugging"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/configuration",
+              "reference/self-destruct",
+              "reference/troubleshooting"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Interactive terminal menu with ANSI color output",
+    "System information display (CPU, GPU, RAM, storage, uptime, IP)",
+    "MAP testing tool for scraping student IDs and auto-confirming students",
+    "KBotter: multi-threaded Kahoot game botter with name-bypass support",
+    "Create File: large file generator with real-time progress bar",
+    "Debugging menu with ANSI color swatch display",
+    "Self-destruct mode with double-confirmation prompt",
+    "One-line bash installer via curl"
+  ],
+  "publicApiSurface": [
+    "lrhub (CLI entrypoint — runs hub.lua via /usr/bin/lrhub)",
+    "Menu option 1: System Info",
+    "Menu option 2: Testing Tool (MAP session join/scrape/confirm)",
+    "Menu option 3: KBotter (Kahoot bot flooding)",
+    "Menu option 4: Create File (large file writer)",
+    "Menu option 5: About",
+    "Menu option 6: Debugging",
+    "Menu option 7: Self Destruct",
+    "Menu option 8: Exit",
+    "tools/testingtool/input/config.json — manual_test_name field",
+    "tools/testingtool/input/proxies.txt — optional HTTP proxy list",
+    "KBotter bypassName(playerName) — Unicode character substitution",
+    "KBotter join_game(gamePin, playerName) — WebSocket bot thread",
+    "qrencode.lua qrcode(str, ec_level) — QR code matrix generator"
+  ]
+}
